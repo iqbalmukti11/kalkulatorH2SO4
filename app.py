@@ -14,7 +14,7 @@ solid_content_pct = st.sidebar.number_input("Solid Content / 固含量 (% w/w)",
 ni_in_solid_pct = st.sidebar.number_input("Kadar Nikel (Ni) / 干基镍品位 (% w/w)", value=40.0, step=1.0) / 100.0
 
 # Konsentrasi asam sulfat di anoda dipindah ke Variabel Tetap
-h2so4_concentration_gpl = st.sidebar.number_input("Konsentrasi H₂SO₄ Anoda / 阳极液酸浓度 (g/L)", min_value=0.0, value=150.0, step=5.0)
+h2so4_concentration_gpl = st.sidebar.number_input("Konsentrasi H₂SO₄ Anoda / 阳极液酸浓度 (g/L)", min_value=0.0, value=55.0, step=5.0)
 
 # --- 2. VARIABEL BEBAS (INPUT OPERASIONAL) / 自变量（操作输入） ---
 st.sidebar.markdown("---")
