@@ -26,6 +26,9 @@ h2so4_concentration_gpl = st.sidebar.number_input("Konsentrasi H₂SO₄ Anoda /
 excess_pct = 110.0
 excess_factor = excess_pct / 100.0
 
+# Molaritas H2SO4 98% (Sesuai permintaan: 18.4 kmol/m3)
+MOLARITY_H2SO4_98 = 18.4 
+
 # --- 3. PERHITUNGAN (ENGINE) / 计算逻辑 ---
 AR_NI = 58.69   # Berat atom Ni (g/mol)
 MR_H2SO4 = 98.08 # Berat molekul H2SO4 (g/mol)
@@ -48,12 +51,15 @@ kmol_h2so4_actual_required = kmol_h2so4_stoich_per_hour * excess_factor
 mass_h2so4_anode_kg_h = anode_flow_rate * h2so4_concentration_gpl # kg/jam H2SO4 dari anoda
 kmol_h2so4_anode_supplied = mass_h2so4_anode_kg_h / MR_H2SO4       # kmol/jam H2SO4 dari anoda
 
-# E. Defisit / Kekurangan Asam
+# E. Defisit / Kekurangan Asam (dalam kmol/jam)
 kmol_h2so4_deficit = kmol_h2so4_actual_required - kmol_h2so4_anode_supplied
 if kmol_h2so4_deficit < 0:
     kmol_h2so4_deficit = 0.0
 
-mass_h2so4_deficit_kg = kmol_h2so4_deficit * MR_H2SO4 # kg/jam H2SO4 murni yang kurang
+# Konversi defisit kmol ke Debit Volume H2SO4 98% (m3/jam) menggunakan molaritas 18.4 kmol/m3
+# Debit (m3/jam) = kmol_deficit (kmol/jam) / Molaritas (kmol/m3)
+volume_h2so4_deficit_m3_h = kmol_h2so4_deficit / MOLARITY_H2SO4_98
+volume_h2so4_deficit_l_h = volume_h2so4_deficit_m3_h * 1000.0 # Konversi ke Liter/jam untuk info tambahan
 
 # --- 4. KESIMPULAN & TAMPILAN UTAMA / 结论与输出 ---
 st.markdown("---")
@@ -77,13 +83,13 @@ with col2:
 
 with col3:
     st.metric(
-        label="3️⃣ Kebutuhan H₂SO₄ Tambahan / 补充浓硫酸需求量", 
-        value=f"{mass_h2so4_deficit_kg:,.2f} kg/jam"
+        label="3️⃣ Debit H₂SO₄ 98% Tambahan / 补充98%硫酸流量", 
+        value=f"{volume_h2so4_deficit_m3_h:,.3f} m³/jam"
     )
     if kmol_h2so4_deficit == 0:
         st.success("Suplai anoda sudah mencukupi excess 110%! / 阳极液酸量已满足110%过量需求！")
     else:
-        st.warning(f"Kekurangan H₂SO₄ / 需额外补充硫酸: {kmol_h2so4_deficit:,.2f} kmol/h")
+        st.warning(f"Setara dengan: {volume_h2so4_deficit_l_h:,.2f} Liter/jam")
 
 # Detail Perincian Mol
 with st.expander("🔍 Detail Parameter Perhitungan / 详细计算参数"):
@@ -91,4 +97,5 @@ with st.expander("🔍 Detail Parameter Perhitungan / 详细计算参数"):
     st.write(f"- **Kebutuhan Stoikiometri H₂SO₄ / 理论酸耗:** `{kmol_h2so4_stoich_per_hour:,.4f} kmol/jam`")
     st.write(f"- **Kebutuhan Excess 110% H₂SO₄ / 110%过量酸需求:** `{kmol_h2so4_actual_required:,.4f} kmol/jam`")
     st.write(f"- **Suplai H₂SO₄ Anoda / 阳极液供酸量:** `{kmol_h2so4_anode_supplied:,.4f} kmol/jam`")
-    st.write(f"- **Defisit H₂SO₄ / 酸缺口:** `{kmol_h2so4_deficit:,.4f} kmol/jam` ({mass_h2so4_deficit_kg:,.2f} kg H₂SO₄/jam)")
+    st.write(f"- **Defisit H₂SO₄ (Kmol) / 酸缺口 (物质的量):** `{kmol_h2so4_deficit:,.4f} kmol/jam`")
+    st.write(f"- **Molaritas H₂SO₄ 98% / 98%硫酸摩尔浓度:** `{MOLARITY_H2SO4_98} kmol/m³`")
