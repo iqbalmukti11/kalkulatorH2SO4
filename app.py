@@ -97,4 +97,4 @@ with st.expander("🔍 Detail Parameter Perhitungan / 详细计算参数"):
     st.write(f"- **Kebutuhan Excess 110% H₂SO₄ / 110%过量酸需求:** `{kmol_h2so4_actual_required:,.4f} kmol/jam`")
     st.write(f"- **Suplai H₂SO₄ Anoda / 阳极液供酸量:** `{kmol_h2so4_anode_supplied:,.4f} kmol/jam`")
     st.write(f"- **Defisit H₂SO₄ (Kmol) / 酸缺口 (物质的量):** `{kmol_h2so4_deficit:,.4f} kmol/jam`")
-    st.write(f"- **Molaritas H₂SO₄ 98% / 98%硫酸摩尔浓度:** `{MOLARITY_H2SO4_98} kmol/m³`")
+    
