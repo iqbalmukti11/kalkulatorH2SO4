@@ -7,26 +7,26 @@ st.title("🧪 Kalkulator Kebutuhan Asam Sulfat / 硫酸需求量计算器")
 st.markdown("Alat bantu perhitungan neraca reagen pelindian (MHP leaching) berdasarkan suplai anoda dan kebutuhan stoikiometri nikel.\n\n"
             "基于阳极液供应和镍化学计量需求的 MHP 浸出试剂平衡计算工具。")
 
-# --- 1. VARIABEL TETAP (KONSTANTA PROSES MHP) / 固定参数 ---
+# --- 1. VARIABEL TETAP (KONSTANTA PROSES) / 固定参数 ---
 st.sidebar.header("📌 Variabel Tetap / 固定参数")
 density_slurry = st.sidebar.number_input("Densitas Slurry MHP / MHP矿浆密度 (kg/m³)", value=1300.0, step=10.0)
 solid_content_pct = st.sidebar.number_input("Solid Content / 固含量 (% w/w)", value=25.0, step=1.0) / 100.0
 ni_in_solid_pct = st.sidebar.number_input("Kadar Nikel (Ni) / 干基镍品位 (% w/w)", value=40.0, step=1.0) / 100.0
 
-# Debit Slurry MHP sebagai basis perhitungan
-slurry_flow_rate = st.sidebar.number_input("Debit Slurry MHP / MHP矿浆流量 (m³/jam)", value=10.0, step=0.5)
-
-# --- 2. VARIABEL BEBAS (INPUT ANODA) / 自变量（阳极液输入） ---
-st.sidebar.markdown("---")
-st.sidebar.header("⚙️ Variabel Bebas / 自变量 (Anode)")
-anode_flow_rate = st.sidebar.number_input("Debit Anoda / 阳极液流量 (m³/jam)", min_value=0.0, value=5.0, step=0.5)
+# Konsentrasi asam sulfat di anoda dipindah ke Variabel Tetap
 h2so4_concentration_gpl = st.sidebar.number_input("Konsentrasi H₂SO₄ Anoda / 阳极液酸浓度 (g/L)", min_value=0.0, value=150.0, step=5.0)
+
+# --- 2. VARIABEL BEBAS (INPUT OPERASIONAL) / 自变量（操作输入） ---
+st.sidebar.markdown("---")
+st.sidebar.header("⚙️ Variabel Bebas / 自变量 (Operation)")
+slurry_flow_rate = st.sidebar.number_input("Debit Slurry MHP / MHP矿浆流量 (m³/jam)", value=10.0, step=0.5)
+anode_flow_rate = st.sidebar.number_input("Debit Anoda / 阳极液流量 (m³/jam)", min_value=0.0, value=5.0, step=0.5)
 
 # Faktor Excess (Ditetapkan 110%)
 excess_pct = 110.0
 excess_factor = excess_pct / 100.0
 
-# Molaritas H2SO4 98% (Sesuai permintaan: 18.4 kmol/m3)
+# Molaritas H2SO4 98% (18.4 kmol/m3)
 MOLARITY_H2SO4_98 = 18.4 
 
 # --- 3. PERHITUNGAN (ENGINE) / 计算逻辑 ---
@@ -56,10 +56,9 @@ kmol_h2so4_deficit = kmol_h2so4_actual_required - kmol_h2so4_anode_supplied
 if kmol_h2so4_deficit < 0:
     kmol_h2so4_deficit = 0.0
 
-# Konversi defisit kmol ke Debit Volume H2SO4 98% (m3/jam) menggunakan molaritas 18.4 kmol/m3
-# Debit (m3/jam) = kmol_deficit (kmol/jam) / Molaritas (kmol/m3)
+# Konversi defisit kmol ke Debit Volume H2SO4 98% (m3/jam)
 volume_h2so4_deficit_m3_h = kmol_h2so4_deficit / MOLARITY_H2SO4_98
-volume_h2so4_deficit_l_h = volume_h2so4_deficit_m3_h * 1000.0 # Konversi ke Liter/jam untuk info tambahan
+volume_h2so4_deficit_l_h = volume_h2so4_deficit_m3_h * 1000.0 # Konversi ke Liter/jam
 
 # --- 4. KESIMPULAN & TAMPILAN UTAMA / 结论与输出 ---
 st.markdown("---")
@@ -69,21 +68,21 @@ col1, col2, col3 = st.columns(3)
 
 with col1:
     st.metric(
-        label="1️⃣ Debit Slurry MHP / MHP 矿浆流量", 
+        label="1️⃣ Slurry MHP / MHP 矿浆", 
         value=f"{slurry_flow_rate:,.2f} m³/jam"
     )
     st.caption(f"Laju Ni / 镍质量流量: {mass_flow_ni_kg_h:,.2f} kg/h ({kmol_ni_per_hour:,.2f} kmol/h)")
 
 with col2:
     st.metric(
-        label="2️⃣ Debit Larutan Anoda / 阳极液流量", 
+        label="2️⃣ Larutan Anoda / 阳极液", 
         value=f"{anode_flow_rate:,.2f} m³/jam"
     )
-    st.caption(f"Suplai H₂SO₄ / 硫酸供应量: {kmol_h2so4_anode_supplied:,.2f} kmol/h")
+    st.caption(f"Suplai H₂SO₄ / 硫酸供应量: {kmol_h2so4_anode_supplied:,.2f} kmol/h (Konsentrasi: {h2so4_concentration_gpl} g/L)")
 
 with col3:
     st.metric(
-        label="3️⃣ Debit H₂SO₄ 98% Tambahan / 补充98%硫酸流量", 
+        label="3️⃣ H₂SO₄ 98% Tambahan / 补充98%硫酸", 
         value=f"{volume_h2so4_deficit_m3_h:,.3f} m³/jam"
     )
     if kmol_h2so4_deficit == 0:
